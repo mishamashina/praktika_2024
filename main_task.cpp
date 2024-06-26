@@ -23,7 +23,15 @@ hxy convert(char* data)
     return (*(reinterpret_cast<hxy*>(data)));
 }
 
-int main()
+int printHXY(hxy data)
+{
+    cout << "H = " << data.H << endl;
+    cout << "X = " << data.X << endl;
+    cout << "Y = " << data.Y << endl;
+    return 0;
+}
+
+int main(int argc, char *argv[])
 {
     ifstream binary_data;
     int length_struct = 14;
@@ -31,8 +39,10 @@ int main()
     int N;
     int i = 0;
     int count = 0;
+    int k = 0;
+    hxy temp;
 
-    binary_data.open("binary_data_10", ifstream::binary);
+    binary_data.open(argv[1], ifstream::binary);
 
     if (binary_data.is_open())
     {
@@ -57,24 +67,61 @@ int main()
             structs.push_back(convert(buffer));
             if (structs[count].Start == (uint16_t)(4660) && structs[count].End == (uint16_t)(22136))
             {
-                cout << "Start[" << count <<"] = " << structs[count].Start << endl;
-                cout << "H[" << count <<"] = " << structs[count].H << endl;
-                cout << "X[" << count <<"] = " << structs[count].X << endl;
-                cout << "Y[" << count <<"] = " << structs[count].Y << endl;
-                cout << "End[" << count <<"] = " << structs[count].End << endl;
-            }
-
-            while (i < length_struct)
-            {
-                cout << bitset<8>(buffer[i]) << endl;
-                i++;
+                printHXY(structs[count]);
             }
 
             cout << endl;
-            count +=1;
-        }   
-    }
-    else(cout << "File not open" << endl);
+            count +=1;  
+        }
 
+        cout << "########## Sorted H ##########" << endl;
+
+        for (int i = 0; i < N - 1; i++) 
+        {
+            for (int j = 0; j < N - i - 1; j++) 
+            {
+                if (structs[j].H > structs[j + 1].H) 
+                {
+                    temp = structs[j];
+                    structs[j] = structs[j + 1];
+                    structs[j + 1] = temp;
+                }
+            }
+        }
+
+        while (k < N)
+        {
+            cout << "Struct № " << k+1 << endl;
+            printHXY(structs[k]);
+            cout << endl;
+            k++;
+        }
+
+        cout << "########## Sorted distance ##########" << endl;
+        k = 0;
+
+        for (int i = 0; i < N - 1; i++) 
+        {
+            for (int j = 0; j < N - i - 1; j++) 
+            {
+                if (pow(pow(structs[j].X, 2) + pow(structs[j].Y, 2), 0.5) < pow(pow(structs[j+1].X, 2) + pow(structs[j+1].Y, 2), 0.5)) 
+                {
+                    temp = structs[j];
+                    structs[j] = structs[j + 1];
+                    structs[j + 1] = temp;
+                }
+            }
+        }
+
+        while (k < N)
+        {
+            cout << "Struct № " << k+1 << endl;
+            printHXY(structs[k]);
+            cout << endl;
+            k++;
+        }
+    }
+
+    else(cout << "File not open" << endl);
     return 0;
 }
